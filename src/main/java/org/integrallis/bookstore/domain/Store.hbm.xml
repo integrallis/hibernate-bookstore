@@ -24,9 +24,10 @@
   </query> 
   
   <sql-query name="Store.findTotalValueOfBookForStore">
+    <!-- return-scalar column="theSum" type="double"/ -->
     <![CDATA[
       SELECT 
-        SUM(i.quantity * b.price) 
+        SUM(i.quantity * b.price) theSum
       FROM 
         BOOK b, INVENTORY i  
       WHERE 

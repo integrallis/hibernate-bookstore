@@ -150,4 +150,5 @@ public class Book implements Serializable {
 	}
 
 	private static final long serialVersionUID = 6735585700907591120L;
+	public static final String PROPERTY_PUBLISHED_ON = "publishedOn";
 }

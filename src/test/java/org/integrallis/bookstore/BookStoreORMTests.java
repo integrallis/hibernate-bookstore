@@ -208,6 +208,7 @@ public class BookStoreORMTests {
 					+ book.getPrice());
 			assertTrue(book.getPrice() > 30);
 		}
+		assertEquals(4, booksOver30.size());
 	}
 
 	@Test
@@ -223,8 +224,9 @@ public class BookStoreORMTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testQueryPagination() {
+		logger.info("###### Lab 2.3 - Pagination Query #####");
 		Query query = session.createQuery("FROM Book ORDER BY id");
-		query.setFirstResult(0);
+		 
 		query.setMaxResults(3);
 		// first set of 3 books
 		List firstThree = query.list();
@@ -252,6 +254,7 @@ public class BookStoreORMTests {
 				}
 			}
 		}
+		logger.info("###### Pagination Query #####");
 	}
 
 	/**
@@ -259,6 +262,7 @@ public class BookStoreORMTests {
 	 */
 	@Test
 	public void testAuthorsValueMapping() {
+		logger.info("###### Lab 2.4 - Value Mappings #####");
 		List<String> expectedAuthors = new ArrayList<String>();
 		expectedAuthors.add("Schutta");
 		expectedAuthors.add("Asleson");
@@ -267,12 +271,15 @@ public class BookStoreORMTests {
 		query.setString("isbn", "1590595823");
 
 		Book book = (Book) query.uniqueResult();
+		
+		assertEquals(expectedAuthors.size(), book.getAuthors().size());
 
 		assertEquals("1590595823", book.getIsbn());
 		for (String author : book.getAuthors()) {
 			logger.info("Author:" + author + " wrote " + book.getTitle());
 			assertTrue(expectedAuthors.contains(author));
 		}
+		logger.info("###### End Lab 2.4 - Value Mappings #####");
 	}
 
 	/**
@@ -331,11 +338,24 @@ public class BookStoreORMTests {
 	 */
 	@Test
 	public void testPricesQuery() {
+		Double expectedMininum = 23.07;
+		Double expectedMaximum = 39.99; 
+		Double expectedAverage = 30.016;
+		
 		Query query = session
 				.createQuery("SELECT min(b.price), max(b.price), avg(b.price) FROM Book b");
 		Object[] prices = (Object[]) query.uniqueResult();
-		logger.info("Book Prices: Mininum=" + prices[0] + ", Maximum="
-				+ prices[1] + ", Average=" + prices[2]);
+		
+		Double actualMininum = (Double)prices[0];
+		Double actualMaximum = (Double)prices[1]; 
+		Double actualAverage = (Double)prices[2];
+		
+		logger.info("Book Prices: Mininum=" + actualMininum + ", Maximum="
+				+ actualMaximum + ", Average=" + actualAverage);
+		assertEquals(expectedMininum, actualMininum, 0.001);
+		assertEquals(expectedMaximum, actualMaximum, 0.001);
+		assertEquals(expectedAverage , actualAverage , 0.001);
+		
 	}
 
 	/**
@@ -368,14 +388,14 @@ public class BookStoreORMTests {
 		assertFalse(book.getInventoryRecords().isEmpty());
 		logger.info("2.8.C After Eager Fetching w/ Criteria JOIN FetchMode");
 
-		logger.info("2.8.D Before Eager Fetching w/ Criteria JOIN FetchMode");
+		logger.info("2.8.D Before Eager Fetching w/ Criteria SELECT FetchMode");
 		session.evict(book);
 		book = (Book) session.createCriteria(Book.class)
 		    .setFetchMode("inventoryRecords", FetchMode.SELECT)
 			.add(Restrictions.idEq(2L))
 			.uniqueResult();
 		assertFalse(book.getInventoryRecords().isEmpty());
-		logger.info("2.8.D After Eager Fetching w/ Criteria JOIN FetchMode");
+		logger.info("2.8.D After Eager Fetching w/ Criteria SELECT FetchMode");
 	}
 
 	/**
@@ -440,7 +460,7 @@ public class BookStoreORMTests {
 	/**
 	 * Lab 3.1
 	 */
-	@Test
+	@Test(expected=StaleObjectStateException.class)
 	public void testOptimisticLocking() {
 		Long id = 1L;
 		Session sessionOne = HibernateUtil.getSessionFactory()
@@ -464,8 +484,8 @@ public class BookStoreORMTests {
 			tx = sessionThree.beginTransaction();
 			sessionThree.merge(detachedItem); // THIS WILL FAIL !
 			tx.commit();
-			fail("test should have thrown a StaleObjectStateException");
-		} catch (StaleObjectStateException sose) {
+			//fail("test should have thrown a StaleObjectStateException");
+		} finally {
 			// clean up
 			Session sessionFour = HibernateUtil.getSessionFactory()
 					.getCurrentSession();
@@ -548,7 +568,7 @@ public class BookStoreORMTests {
 		
 		Criteria criteriaQuery = session
 		    .createCriteria(Book.class)
-		    .add(Restrictions.between("publishedOn", beginningOf2008.getTime(), endOf2008.getTime()));
+		    .add(Restrictions.between(Book.PROPERTY_PUBLISHED_ON, beginningOf2008.getTime(), endOf2008.getTime()));
 		
 		List<Book> booksPublishedIn2008 = criteriaQuery.list();
 		assertEquals(5, booksPublishedIn2008.size());

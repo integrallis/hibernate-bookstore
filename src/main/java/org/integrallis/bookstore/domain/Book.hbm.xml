@@ -24,7 +24,7 @@
       <element type="string" column="LASTNAME" />
     </set>
     
-    <set name="inventoryRecords" inverse="true" lazy="false" cascade="save-update">
+    <set name="inventoryRecords" inverse="true" lazy="true" cascade="save-update">
       <key column="BOOK_ID"/>
       <one-to-many class="Inventory"/>
     </set> 

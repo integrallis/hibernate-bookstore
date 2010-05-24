@@ -7,6 +7,10 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class Inventory implements Serializable {
+	/**
+	 * 
+	 */
+
 	private Long id;
 	private Book book;
 
@@ -61,13 +65,17 @@ public class Inventory implements Serializable {
 			return false;
 		final Inventory inventory = (Inventory) object;
 
-		return new EqualsBuilder().append(book, inventory.getBook()).append(
-				store, inventory.getStore()).isEquals();
+		return new EqualsBuilder()
+			.append(book, inventory.getBook())
+			.append(store, inventory.getStore())
+			.isEquals();
 	}
 
 	public int hashcode() {
-		return new HashCodeBuilder(19, 23).append(book).append(store)
-				.toHashCode();
+		return new HashCodeBuilder(19, 23)
+			.append(book)
+			.append(store)
+			.toHashCode();
 	}
 
 	public void setStore(Store store) {
@@ -78,5 +86,5 @@ public class Inventory implements Serializable {
 		return store;
 	}
 
-	private static final long serialVersionUID = 759669800916879019L;
+	private static final long serialVersionUID = -2423742824997920244L;
 }
